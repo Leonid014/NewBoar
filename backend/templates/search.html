@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-search text-purple"></i> Поиск друзей</h1>
+        <a href="{{ url_for('toggle_theme') }}" class="btn btn-outline-secondary">
+            {{ '🌙' if theme == 'dark' else '☀️' }}
+        </a>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="POST" class="row g-3">
+                {{ form.hidden_tag() }}
+                
+                <div class="col-md-6">
+                    <label class="form-label">Поиск по имени или классу</label>
+                    <input type="text" name="search_query" class="form-control" 
+                           value="{{ form.search_query.data or '' }}" 
+                           placeholder="Начните вводить...">
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Класс</label>
+                    <select name="class_filter" class="form-select">
+                        <option value="">Все классы</option>
+                        {% for value, label in form.class_filter.choices[1:] %}
+                            <option value="{{ value }}" {% if form.class_filter.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Интересы</label>
+                    <select name="interest_category_filter" class="form-select">
+                        <option value="">Все категории</option>
+                        {% for value, label in form.interest_category_filter.choices[1:] %}
+                            <option value="{{ value }}" {% if form.interest_category_filter.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Навыки</label>
+                    <select name="skill_category_filter" class="form-select">
+                        <option value="">Все категории</option>
+                        {% for value, label in form.skill_category_filter.choices[1:] %}
+                            <option value="{{ value }}" {% if form.skill_category_filter.data == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-purple me-2">
+                        <i class="bi bi-search"></i> Применить фильтры
+                    </button>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Сбросить
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if users %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for user in users %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar-container mx-auto mb-3">
+                        {% if user.avatar %}
+                            <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" class="avatar-img rounded-circle">
+                        {% else %}
+                            <div class="avatar-letter rounded-circle d-flex align-items-center justify-content-center">
+                                {{ user.name[0]|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">{{ user.name }}</h5>
+                    <p class="text-muted mb-2">{{ user.class_ }}</p>
+                    
+                    <div class="d-flex flex-wrap justify-content-center mb-3">
+                        {% for interest in user.interests[:3] %}
+                        <span class="badge bg-primary me-1 mb-1">{{ interest.name }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <a href="{{ url_for('profile', user_id=user.id) }}" class="btn btn-sm btn-purple">
+                        <i class="bi bi-person"></i> Профиль
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle fs-4"></i>
+        <p class="mb-0">Никого не найдено. Попробуйте изменить параметры поиска.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

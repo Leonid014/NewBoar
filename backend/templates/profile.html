@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Профиль {{ user.name }}</h1>
+        <div>
+            <a href="{{ url_for('index') }}" class="btn btn-purple me-2">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+            {% if current_user.id == user.id %}
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-edit">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar-container avatar-md mx-auto mb-3">
+                        {% if user.avatar %}
+                            <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" class="avatar-img">
+                        {% else %}
+                            <div class="avatar-letter avatar-md">
+                                {{ user.name[0]|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h3>{{ user.name }}</h3>
+                    <p class="text-muted mb-1">{{ user.class_ }}</p>
+                    <p class="text-muted">{{ user.contacts }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Секция интересов -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="d-flex justify-content-between align-items-center mb-4">
+                        <span><i class="bi bi-heart"></i> Интересы</span>
+                        {% if current_user.id == user.id %}
+                        <div>
+                            <button class="btn btn-sm btn-edit me-2" data-bs-toggle="modal" data-bs-target="#addInterestCategoryModal">
+                                <i class="bi bi-folder-plus"></i> Категория
+                            </button>
+                            <button class="btn btn-sm btn-edit" data-bs-toggle="modal" data-bs-target="#addInterestModal">
+                                <i class="bi bi-plus-circle"></i> Интерес
+                            </button>
+                        </div>
+                        {% endif %}
+                    </h4>
+                    
+                    {% if user_interests %}
+                        {% for category in interest_categories %}
+                            {% set category_interests = user_interests|selectattr('category_id', 'equalto', category.id)|list %}
+                            {% if category_interests %}
+                            <div class="category-section mb-4 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">
+                                        <span class="badge bg-purple text-white">
+                                            <i class="bi bi-tag"></i> {{ category.name }}
+                                        </span>
+                                    </h5>
+                                    {% if current_user.id == user.id %}
+                                    <a href="{{ url_for('delete_interest_category', id=category.id) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Удалить категорию и все связанные интересы?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex flex-wrap mt-2">
+                                    {% for interest in category_interests %}
+                                    <div class="badge bg-primary me-2 mb-2 p-2 position-relative interest-item">
+                                        {{ interest.name }}
+                                        {% if current_user.id == user.id %}
+                                        <a href="{{ url_for('delete_interest', id=interest.id) }}" 
+                                           class="text-white ms-2 remove-btn"
+                                           onclick="return confirm('Удалить этот интерес?')">
+                                            ×
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Пока нет интересов
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Секция навыков -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="d-flex justify-content-between align-items-center mb-4">
+                        <span><i class="bi bi-award"></i> Навыки</span>
+                        {% if current_user.id == user.id %}
+                        <div>
+                            <button class="btn btn-sm btn-edit me-2" data-bs-toggle="modal" data-bs-target="#addSkillCategoryModal">
+                                <i class="bi bi-folder-plus"></i> Категория
+                            </button>
+                            <button class="btn btn-sm btn-edit" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                                <i class="bi bi-plus-circle"></i> Навык
+                            </button>
+                        </div>
+                        {% endif %}
+                    </h4>
+                    
+                    {% if user_skills %}
+                        {% for category in skill_categories %}
+                            {% set category_skills = user_skills|selectattr('category_id', 'equalto', category.id)|list %}
+                            {% if category_skills %}
+                            <div class="category-section mb-4 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">
+                                        <span class="badge bg-success text-white">
+                                            <i class="bi bi-tag"></i> {{ category.name }}
+                                        </span>
+                                    </h5>
+                                    {% if current_user.id == user.id %}
+                                    <a href="{{ url_for('delete_skill_category', id=category.id) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Удалить категорию и все связанные навыки?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex flex-wrap mt-2">
+                                    {% for skill in category_skills %}
+                                    <div class="badge bg-success me-2 mb-2 p-2 position-relative skill-item">
+                                        {{ skill.name }}
+                                        {% if current_user.id == user.id %}
+                                        <a href="{{ url_for('delete_skill', id=skill.id) }}" 
+                                           class="text-white ms-2 remove-btn"
+                                           onclick="return confirm('Удалить этот навык?')">
+                                            ×
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Пока нет навыков
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+{% if current_user.id == user.id %}
+<!-- Модальное окно добавления категории интересов -->
+<div class="modal fade" id="addInterestCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_interest_category') }}">
+                {{ interest_category_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-folder-plus"></i> Новая категория интересов</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ interest_category_form.name.label(class="form-label") }}
+                        {{ interest_category_form.name(class="form-control", placeholder="Например: Спорт, Игры, Музыка") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-yellow" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-purple">
+                        <i class="bi bi-check-circle"></i> Создать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления интереса -->
+<div class="modal fade" id="addInterestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_interest') }}">
+                {{ interest_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Новый интерес</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ interest_form.name.label(class="form-label") }}
+                        {{ interest_form.name(class="form-control", placeholder="Например: Шахматы, Футбол") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ interest_form.category_id.label(class="form-label") }}
+                        {{ interest_form.category_id(class="form-select") }}
+                        <small class="text-muted">Если нужной категории нет, создайте её сначала</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-yellow" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-purple">
+                        <i class="bi bi-check-circle"></i> Добавить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления категории навыков -->
+<div class="modal fade" id="addSkillCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_skill_category') }}">
+                {{ skill_category_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-folder-plus"></i> Новая категория навыков</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ skill_category_form.name.label(class="form-label") }}
+                        {{ skill_category_form.name(class="form-control", placeholder="Например: Языки, Программирование, Дизайн") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-yellow" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-purple">
+                        <i class="bi bi-check-circle"></i> Создать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления навыка -->
+<div class="modal fade" id="addSkillModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_skill') }}">
+                {{ skill_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Новый навык</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ skill_form.name.label(class="form-label") }}
+                        {{ skill_form.name(class="form-control", placeholder="Например: Python, Photoshop, Английский") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ skill_form.category_id.label(class="form-label") }}
+                        {{ skill_form.category_id(class="form-select") }}
+                        <small class="text-muted">Если нужной категории нет, создайте её сначала</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-yellow" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </button>
+                    <button type="submit" class="btn btn-purple">
+                        <i class="bi bi-check-circle"></i> Добавить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .category-section {
+        border-left: 4px solid var(--bs-primary);
+        transition: all 0.3s ease;
+    }
+    .category-section:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        background-color: rgb(64, 67, 70);
+    }
+    .interest-item, .skill-item {
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    .interest-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 255, 0.1);
+    }
+    .skill-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 128, 0, 0.1);
+    }
+    .remove-btn {
+        opacity: 0.7;
+        font-weight: bold;
+    }
+    .remove-btn:hover {
+        opacity: 1;
+        text-decoration: none;
+    }
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+    .badge {
+        font-weight: normal;
+    }
+</style>
+{% endblock %}

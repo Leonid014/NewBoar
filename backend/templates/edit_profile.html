@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-center mb-0">Редактирование профиля</h2>
+                <a href="{{ url_for('profile', user_id=current_user.id) }}" class="btn btn-purple">Назад</a>
+            </div>
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.class_.label(class="form-label") }}
+                    {{ form.class_(class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.contacts.label(class="form-label") }}
+                    {{ form.contacts(class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.avatar.label(class="form-label") }}
+                    {{ form.avatar(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-purple w-100") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
