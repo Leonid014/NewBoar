@@ -390,3 +390,32 @@ if __name__ == '__main__':
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
     app.run(debug=True)
+
+@app.route('/profile/<int:user_id>')
+@login_required
+def profile(user_id):
+    theme = request.cookies.get('theme', 'light')
+    user = User.query.get_or_404(user_id)
+    
+    # Явно загружаем связанные данные
+    user = User.query.options(
+        db.joinedload(User.interests).joinedload(Interest.category),
+        db.joinedload(User.skills).joinedload(Skill.category)
+    ).get(user_id)
+    
+    interest_categories = InterestCategory.query.all()
+    skill_categories = SkillCategory.query.all()
+    
+    interest_form = InterestForm()
+    interest_form.category_id.choices = [(c.id, c.name) for c in interest_categories]
+    
+    skill_form = SkillForm()
+    skill_form.category_id.choices = [(c.id, c.name) for c in skill_categories]
+    
+    return render_template('profile.html', 
+                         theme=theme, 
+                         user=user,
+                         interest_categories=interest_categories,
+                         skill_categories=skill_categories,
+                         interest_form=interest_form,
+                         skill_form=skill_form)
