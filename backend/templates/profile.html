@@ -53,41 +53,19 @@
                         {% endif %}
                     </h4>
                     
-                    {% if user_interests %}
-                        {% for category in interest_categories %}
-                            {% set category_interests = user_interests|selectattr('category_id', 'equalto', category.id)|list %}
-                            {% if category_interests %}
-                            <div class="category-section mb-4 p-3 bg-light rounded">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 class="mb-0">
-                                        <span class="badge bg-purple text-white">
-                                            <i class="bi bi-tag"></i> {{ category.name }}
-                                        </span>
-                                    </h5>
-                                    {% if current_user.id == user.id %}
-                                    <a href="{{ url_for('delete_interest_category', id=category.id) }}" 
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Удалить категорию и все связанные интересы?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                                <div class="d-flex flex-wrap mt-2">
-                                    {% for interest in category_interests %}
-                                    <div class="badge bg-primary me-2 mb-2 p-2 position-relative interest-item">
-                                        {{ interest.name }}
-                                        {% if current_user.id == user.id %}
-                                        <a href="{{ url_for('delete_interest', id=interest.id) }}" 
-                                           class="text-white ms-2 remove-btn"
-                                           onclick="return confirm('Удалить этот интерес?')">
-                                            ×
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                    {% if user.interests %}
+                        {% for interest in user.interests %}
+                        <div class="badge bg-primary me-2 mb-2 p-2 position-relative">
+                            {{ interest.name }}
+                            <small class="ms-1">({{ interest.category.name }})</small>
+                            {% if current_user.id == user.id %}
+                            <a href="{{ url_for('delete_interest', id=interest.id) }}" 
+                               class="text-white ms-2 remove-btn"
+                               onclick="return confirm('Удалить этот интерес?')">
+                                ×
+                            </a>
                             {% endif %}
+                        </div>
                         {% endfor %}
                     {% else %}
                         <div class="alert alert-info">
@@ -114,41 +92,19 @@
                         {% endif %}
                     </h4>
                     
-                    {% if user_skills %}
-                        {% for category in skill_categories %}
-                            {% set category_skills = user_skills|selectattr('category_id', 'equalto', category.id)|list %}
-                            {% if category_skills %}
-                            <div class="category-section mb-4 p-3 bg-light rounded">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 class="mb-0">
-                                        <span class="badge bg-success text-white">
-                                            <i class="bi bi-tag"></i> {{ category.name }}
-                                        </span>
-                                    </h5>
-                                    {% if current_user.id == user.id %}
-                                    <a href="{{ url_for('delete_skill_category', id=category.id) }}" 
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Удалить категорию и все связанные навыки?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                                <div class="d-flex flex-wrap mt-2">
-                                    {% for skill in category_skills %}
-                                    <div class="badge bg-success me-2 mb-2 p-2 position-relative skill-item">
-                                        {{ skill.name }}
-                                        {% if current_user.id == user.id %}
-                                        <a href="{{ url_for('delete_skill', id=skill.id) }}" 
-                                           class="text-white ms-2 remove-btn"
-                                           onclick="return confirm('Удалить этот навык?')">
-                                            ×
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                    {% if user.skills %}
+                        {% for skill in user.skills %}
+                        <div class="badge bg-success me-2 mb-2 p-2 position-relative">
+                            {{ skill.name }}
+                            <small class="ms-1">({{ skill.category.name }})</small>
+                            {% if current_user.id == user.id %}
+                            <a href="{{ url_for('delete_skill', id=skill.id) }}" 
+                               class="text-white ms-2 remove-btn"
+                               onclick="return confirm('Удалить этот навык?')">
+                                ×
+                            </a>
                             {% endif %}
+                        </div>
                         {% endfor %}
                     {% else %}
                         <div class="alert alert-info">
